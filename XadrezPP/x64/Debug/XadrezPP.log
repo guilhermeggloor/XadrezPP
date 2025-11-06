@@ -1,0 +1,4 @@
+﻿  main.cpp
+C:\Projetos\Repositorios\XadrezPP\main.cpp(88,62): warning C4244: 'return': conversão de 'float' para 'unsigned int', possível perda de dados
+C:\Projetos\Repositorios\XadrezPP\main.cpp(89,60): warning C4244: 'return': conversão de 'float' para 'unsigned int', possível perda de dados
+  XadrezPP.vcxproj -> C:\Projetos\Repositorios\XadrezPP\x64\Debug\XadrezPP.exe
