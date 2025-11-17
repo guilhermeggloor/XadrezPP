@@ -139,10 +139,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bispo.cpp" />
+    <ClCompile Include="Cavalo.cpp" />
+    <ClCompile Include="Dama.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Peao.cpp" />
+    <ClCompile Include="Rei.cpp" />
+    <ClCompile Include="Solver.cpp" />
+    <ClCompile Include="Tabuleiro.cpp" />
+    <ClCompile Include="Torre.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="teste1.pcin" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Bispo.h" />
+    <ClInclude Include="Cavalo.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Dama.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="Peao.h" />
+    <ClInclude Include="Peca.h" />
+    <ClInclude Include="Rei.h" />
+    <ClInclude Include="Solver.h" />
+    <ClInclude Include="Tabuleiro.h" />
+    <ClInclude Include="Torre.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
