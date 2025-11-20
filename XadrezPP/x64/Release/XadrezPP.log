@@ -1,7 +1,18 @@
-﻿  Rei.cpp
+﻿  Bispo.cpp
+  Cavalo.cpp
+  Dama.cpp
+  main.cpp
+C:\Projetos\Repositorios\XadrezPP\Renderer.h(20,33): warning C4834: descartando o valor retornado da função com o atributo [[nodiscard]]
+  (compilando o arquivo fonte 'main.cpp')
+  
+  Parser.cpp
+  Peao.cpp
+  Rei.cpp
+  Solver.cpp
   Tabuleiro.cpp
+  Torre.cpp
   Gerando código
-  4 of 802 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+  3 of 1636 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     2 functions had inline decision re-evaluated but remain unchanged
   Finalizada a geração de código

@@ -11,11 +11,11 @@ std::vector<Movimento> Cavalo::getMovimentosPossiveis(const Tabuleiro& tabuleiro
     for (int i = 0; i < 8; ++i) {
         Posicao novaPos = { m_pos.linha + dr[i], m_pos.col + dc[i] };
 
-        // 1. Verifica se a posição é válida (dentro do tabuleiro e não é buraco)
+        // Verifica se a posição é válida (dentro do tabuleiro e não é buraco)
         if (tabuleiro.ePosValida(novaPos)) {
             Peca* pecaNoLocal = tabuleiro.getPecaEm(novaPos);
 
-            // 2. Pode mover se estiver vazio OU se for peça inimiga (captura)
+            // Pode mover se estiver vazio OU se for peça inimiga (captura)
             if (pecaNoLocal == nullptr || pecaNoLocal->getCor() != m_cor) {
                 movimentos.push_back({ m_pos, novaPos });
             }

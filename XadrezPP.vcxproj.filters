@@ -47,9 +47,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="teste1.pcin">
+    <None Include="nivel15.pcin">
       <Filter>Arquivos de Origem</Filter>
     </None>
+    <None Include="nivel1.pcin">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+    <None Include="nivel2.pcin">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+    <None Include="nivel3.pcin" />
+    <None Include="nivel14.pcin" />
+    <None Include="nivel12.pcin" />
+    <None Include="nivel6.pcin" />
+    <None Include="nivel4.pcin" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core.h">
@@ -83,6 +94,9 @@
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
     <ClInclude Include="Solver.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
       <Filter>Arquivos de Cabeçalho</Filter>
     </ClInclude>
   </ItemGroup>

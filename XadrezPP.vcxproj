@@ -151,7 +151,14 @@
     <ClCompile Include="Torre.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="teste1.pcin" />
+    <None Include="nivel1.pcin" />
+    <None Include="nivel12.pcin" />
+    <None Include="nivel14.pcin" />
+    <None Include="nivel15.pcin" />
+    <None Include="nivel2.pcin" />
+    <None Include="nivel3.pcin" />
+    <None Include="nivel4.pcin" />
+    <None Include="nivel6.pcin" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bispo.h" />
@@ -162,6 +169,7 @@
     <ClInclude Include="Peao.h" />
     <ClInclude Include="Peca.h" />
     <ClInclude Include="Rei.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Solver.h" />
     <ClInclude Include="Tabuleiro.h" />
     <ClInclude Include="Torre.h" />

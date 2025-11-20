@@ -19,6 +19,8 @@ public:
     Tabuleiro(int linhas, int colunas, int jogadas);
     Tabuleiro(const Tabuleiro& other); // O construtor de cópia que já fizemos é VITAL
 
+    Tabuleiro& operator=(const Tabuleiro& other);
+
     void adicionarPeca(std::unique_ptr<Peca> peca);
     void adicionarBuraco(Posicao pos);
 
@@ -30,51 +32,25 @@ public:
     Peca* getPecaEm(Posicao p) const;
     bool eInimigoEm(Posicao p, Cor corAliada) const;
     void desenharNoConsole() const;
-    
-    // === NOVAS FUNÇÕES PARA O SOLVER ===
 
-    /**
-     * @brief Retorna uma lista de ponteiros para todas as peças de uma cor.
-     */
     std::vector<Peca*> getTodasPecas(Cor cor) const;
 
-    /**
-     * @brief Retorna um ponteiro para o Rei de uma cor (ou nullptr).
-     */
     Peca* getRei(Cor cor) const;
 
-    /**
-     * @brief Verifica se uma posição 'p' está sendo atacada pela 'corAtacante'.
-     * Usado para verificar movimentos legais do Rei.
-     */
     bool eAtacadoPor(Posicao p, Cor corAtacante) const;
 
-    /**
-     * @brief Gera todos os movimentos legais para uma cor, filtrando
-     * movimentos que colocariam o próprio Rei em cheque.
-     */
     std::vector<Movimento> getMovimentosLegaisParaCor(Cor cor) const;
 
-    /**
-     * @brief Aplica um movimento e retorna o NOVO estado do tabuleiro.
-     * Esta é a função mais importante para o Solver.
-     */
     Tabuleiro fazerMovimento(Movimento mov) const;
 
-    /**
-     * @brief Verifica se o Rei da 'cor' está em cheque.
-     */
     bool estaEmCheque(Cor corRei) const;
 
-    /**
-     * @brief Verifica se o Rei da 'cor' está em cheque-mate.
-     */
     bool eChequeMate(Cor corRei) const;
 
-    /**
-     * @brief Verifica se o Rei da 'cor' está afogado (stalemate).
-     */
     bool eAfogamento(Cor corRei) const;
 
     void removerPecaEm(Posicao p);
+
+    // Gera uma string única representando o estado atual (peças e posições)
+    std::string getEstadoString() const;
 };

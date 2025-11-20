@@ -25,6 +25,30 @@ Tabuleiro::Tabuleiro(const Tabuleiro& other)
     }
 }
 
+// Implementação do Operador de Atribuição
+Tabuleiro& Tabuleiro::operator=(const Tabuleiro& other) {
+    if (this == &other) {
+        return *this; // Proteção contra auto-atribuição (t = t)
+    }
+
+    // Copia os dados simples
+    m_linhas = other.m_linhas;
+    m_colunas = other.m_colunas;
+    m_jogadasParaMate = other.m_jogadasParaMate;
+    m_buracos = other.m_buracos;
+
+    // Copia PROFUNDA das peças (Clone)
+    m_pecas.clear(); // Limpa as peças antigas
+    m_pecas.reserve(other.m_pecas.size()); // Otimização
+
+    for (const auto& peca : other.m_pecas) {
+        // Clona cada peça do outro tabuleiro para este
+        m_pecas.push_back(peca->clone());
+    }
+
+    return *this;
+}
+
 void Tabuleiro::adicionarPeca(std::unique_ptr<Peca> peca) {
     m_pecas.push_back(std::move(peca));
 }
@@ -81,22 +105,19 @@ void Tabuleiro::desenharNoConsole() const {
             }
             else {
                 char c = '?';
-
-                // === ATUALIZADO AQUI ===
-                // Alinhando com a notação algébrica oficial
+                
                 switch (p->getTipo()) {
-                case TipoPeca::REI:     c = 'K'; break; // King
-                case TipoPeca::DAMA:    c = 'Q'; break; // Queen (Padrão)
-                case TipoPeca::TORRE:   c = 'R'; break; // Rook
-                case TipoPeca::BISPO:   c = 'B'; break; // Bishop
-                case TipoPeca::CAVALO:  c = 'N'; break; // kNight
-                case TipoPeca::PEAO:    c = 'P'; break; // Pawn
-                default:                c = '?'; break;
+                case TipoPeca::REI:     c = 'R'; break; // R de Rei
+                case TipoPeca::DAMA:    c = 'D'; break; // D de Dama
+                case TipoPeca::TORRE:   c = 'T'; break; // T de Torre
+                case TipoPeca::BISPO:   c = 'B'; break; // B de Bispo
+                case TipoPeca::CAVALO:  c = 'C'; break; // C de Cavalo
+                case TipoPeca::PEAO:    c = 'P'; break; // P de Peão
+                default: break;
                 }
-                // =======================
 
                 if (p->getCor() == Cor::PRETA) {
-                    c = tolower(c); // minúscula para Pretas
+                    c = tolower(c); // minúscula para Pretas (r, d, t...)
                 }
                 std::cout << " " << c << " ";
             }
@@ -130,12 +151,25 @@ bool Tabuleiro::eAtacadoPor(Posicao p, Cor corAtacante) const {
     std::vector<Peca*> pecasAtacantes = getTodasPecas(corAtacante);
 
     for (Peca* peca : pecasAtacantes) {
-        // Pega os movimentos *possíveis* (brutos) de cada peça
-        std::vector<Movimento> movimentos = peca->getMovimentosPossiveis(*this);
-        for (const auto& mov : movimentos) {
-            // Se algum movimento deles pode capturar na posição 'p', ela está atacada
-            if (mov.para == p) {
+        // Se a peça atacante for um REI, não chamamos getMovimentosPossiveis().
+        if (peca->getTipo() == TipoPeca::REI) {
+            Posicao posRei = peca->getPosicao();
+            // Verifica se o Rei está ao lado da posição 'p' (distância de 1 casa)
+            int diffLinha = std::abs(posRei.linha - p.linha);
+            int diffCol = std::abs(posRei.col - p.col);
+
+            // Se a distância for 1 em qualquer direção, ele ataca 'p'
+            if (diffLinha <= 1 && diffCol <= 1) {
                 return true;
+            }
+        }
+        else {
+            // Para todas as outras peças (Dama, Torre, etc), usa a lógica padrão
+            std::vector<Movimento> movimentos = peca->getMovimentosPossiveis(*this);
+            for (const auto& mov : movimentos) {
+                if (mov.para == p) {
+                    return true;
+                }
             }
         }
     }
@@ -147,13 +181,12 @@ std::vector<Movimento> Tabuleiro::getMovimentosLegaisParaCor(Cor cor) const {
     std::vector<Peca*> pecasDaCor = getTodasPecas(cor);
 
     for (Peca* peca : pecasDaCor) {
-        // 1. Pega os movimentos da peça (ex: Rei.cpp)
+        // Pega os movimentos da peça (ex: Rei.cpp)
         std::vector<Movimento> movimentosPossiveis = peca->getMovimentosPossiveis(*this);
 
-        // 2. Apenas copia os movimentos para a lista final
+        // Apenas copia os movimentos para a lista final
         for (const auto& mov : movimentosPossiveis) {
-            // ... (o código que postei antes tinha uma lógica aqui)
-            // A sua lógica deve ser:
+          
             if (cor == Cor::BRANCA) {
                 movimentosLegais.push_back(mov);
             }
@@ -167,17 +200,17 @@ std::vector<Movimento> Tabuleiro::getMovimentosLegaisParaCor(Cor cor) const {
 }
 
 Tabuleiro Tabuleiro::fazerMovimento(Movimento mov) const {
-    // 1. Cria uma cópia exata do tabuleiro atual
-    //    (Graças ao nosso construtor de cópia e ao peca->clone())
+    // Cria uma cópia exata do tabuleiro atual
+   
     Tabuleiro novoTab = *this;
 
-    // 2. Acha a peça a ser movida (na CÓPIA)
+    // Acha a peça a ser movida (na CÓPIA)
     Peca* pecaParaMover = novoTab.getPecaEm(mov.de);
     if (pecaParaMover == nullptr) {
         return novoTab; // Não devia acontecer, mas é uma defesa
     }
 
-    // 3. Acha se há uma peça para capturar (na CÓPIA)
+    // Acha se há uma peça para capturar (na cópia)
     Peca* pecaCapturada = novoTab.getPecaEm(mov.para);
     if (pecaCapturada != nullptr) {
         // Remove a peça capturada da lista m_pecas
@@ -189,10 +222,10 @@ Tabuleiro Tabuleiro::fazerMovimento(Movimento mov) const {
             pecas.end());
     }
 
-    // 4. Atualiza a posição da peça que moveu (na CÓPIA)
+    // Atualiza a posição da peça que moveu (na cópia)
     pecaParaMover->setPosicao(mov.para);
 
-    // 5. Retorna o tabuleiro modificado
+    // Retorna o tabuleiro modificado
     return novoTab;
 }
 
@@ -213,14 +246,10 @@ bool Tabuleiro::eChequeMate(Cor corRei) const {
     // O Rei TEM movimentos legais?
     std::vector<Movimento> movimentosRei = getMovimentosLegaisParaCor(corRei);
 
-    std::cout << "  [Debug Mate] Rei " << (corRei == Cor::PRETA ? "PRETO" : "BRANCO")
-        << ": Esta em Cheque? " << (cheque ? "SIM" : "NAO")
-        << ". Movimentos Legais: " << movimentosRei.size()
-        << std::endl;
-
     // É mate se (cheque == true) E (movimentos == 0)
     return cheque && movimentosRei.empty();
 }
+
 bool Tabuleiro::eAfogamento(Cor corRei) const {
     // É afogamento se:
     // O Rei NÃO está em cheque
@@ -236,4 +265,33 @@ void Tabuleiro::removerPecaEm(Posicao p) {
                 return peca->getPosicao() == p;
             }),
         pecas.end());
+}
+
+std::string Tabuleiro::getEstadoString() const {
+    std::string s = "";
+    // Percorre todas as casas
+    for (int i = 0; i < m_linhas; ++i) {
+        for (int j = 0; j < m_colunas; ++j) {
+            Peca* p = getPecaEm({ i, j });
+            if (p == nullptr) {
+                s += "."; // Vazio
+            }
+            else {
+                // Usa o tipo e a cor para criar o ID (ex: "Ra", "rb")
+                char c = '?';
+                switch (p->getTipo()) {
+                case TipoPeca::REI: c = 'R'; break;
+                case TipoPeca::DAMA: c = 'D'; break;
+                case TipoPeca::TORRE: c = 'T'; break;
+                case TipoPeca::BISPO: c = 'B'; break;
+                case TipoPeca::CAVALO: c = 'C'; break;
+                case TipoPeca::PEAO: c = 'P'; break;
+                default: break;
+                }
+                if (p->getCor() == Cor::PRETA) c = tolower(c);
+                s += c;
+            }
+        }
+    }
+    return s;
 }

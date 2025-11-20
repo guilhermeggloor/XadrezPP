@@ -5,8 +5,6 @@ enum class Cor { BRANCA, PRETA, NENHUMA };
 enum class TipoPeca { REI, DAMA, TORRE, BISPO, CAVALO, PEAO, NENHUMA };
 
 // Uma struct simples para posições no tabuleiro (0-indexado)
-// (0,0) é o canto superior esquerdo (ex: 'a4' no seu exemplo 4x3)
-// (3,0) seria 'a1' no seu exemplo 4x3
 struct Posicao {
     int linha;
     int col;

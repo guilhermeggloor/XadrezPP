@@ -36,10 +36,10 @@ std::vector<Movimento> Dama::getMovimentosPossiveis(const Tabuleiro& tabuleiro) 
     checarDirecao(movimentos, tabuleiro, 1, 0);  // Baixo
     checarDirecao(movimentos, tabuleiro, 0, -1); // Esquerda
     checarDirecao(movimentos, tabuleiro, 0, 1);  // Direita
-    checarDirecao(movimentos, tabuleiro, -1, -1); // Diag. Cima-Esq
-    checarDirecao(movimentos, tabuleiro, -1, 1);  // Diag. Cima-Dir
-    checarDirecao(movimentos, tabuleiro, 1, -1);  // Diag. Baixo-Esq
-    checarDirecao(movimentos, tabuleiro, 1, 1);   // Diag. Baixo-Dir
+    checarDirecao(movimentos, tabuleiro, -1, -1); // Diagonal Cima-Esq
+    checarDirecao(movimentos, tabuleiro, -1, 1);  // Diagonal Cima-Dir
+    checarDirecao(movimentos, tabuleiro, 1, -1);  // Diagonal Baixo-Esq
+    checarDirecao(movimentos, tabuleiro, 1, 1);   // Diagonal Baixo-Dir
 
     return movimentos;
 }

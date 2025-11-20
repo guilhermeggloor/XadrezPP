@@ -1,93 +1,117 @@
+// Solver.cpp
 #include "Solver.h"
-#include <iostream> // Para debug
+#include <iostream> 
 
-// Função pública que inicia a busca
 ResultadoBusca Solver::encontrarSolucao(const Tabuleiro& estadoInicial) {
     std::vector<Movimento> sequencia;
+    std::vector<std::string> historico;
     int jogadasParaMate = estadoInicial.getJogadasParaMate();
 
-    // Inicia a busca. É o turno das Brancas.
-    return buscaRecursiva(estadoInicial, jogadasParaMate, true, sequencia);
+    // Adiciona o estado inicial ao histórico
+    historico.push_back(estadoInicial.getEstadoString());
+
+    // Inicia a busca (Turno Brancas)
+    return buscaRecursiva(estadoInicial, jogadasParaMate, true, sequencia, historico);
 }
 
-// A função recursiva (o "cérebro")
-ResultadoBusca Solver::buscaRecursiva(const Tabuleiro& board, int jogadasBrancasRestantes, bool eTurnoBrancas, std::vector<Movimento>& sequenciaAtual)
+ResultadoBusca Solver::buscaRecursiva(const Tabuleiro& board, int jogadasBrancasRestantes, bool eTurnoBrancas, std::vector<Movimento>& sequenciaAtual, std::vector<std::string>& historico)
 {
-    // === TURNO DAS BRANCAS (Maximizador) ===
+	// Maximizador: TURNO DAS BRANCAS
     if (eTurnoBrancas) {
-        // Pega todos os movimentos legais das Brancas
         std::vector<Movimento> movimentos = board.getMovimentosLegaisParaCor(Cor::BRANCA);
 
         for (const auto& mov : movimentos) {
-            // 1. "Joga" o movimento e cria um novo tabuleiro
             Tabuleiro proximoBoard = board.fazerMovimento(mov);
 
-            // Adiciona o movimento à nossa sequência de teste
-            sequenciaAtual.push_back(mov);
+            std::string idEstado = proximoBoard.getEstadoString();
 
-            // 2. Verifica se este movimento deu MATE
-            if (proximoBoard.eChequeMate(Cor::PRETA)) {
-                // SUCESSO! Achamos um mate.
-                return { true, sequenciaAtual };
-            }
-
-            // 3. Verifica se a profundidade acabou
-            // Se as jogadas acabaram (==1) e não foi mate, este caminho falhou
-            if (jogadasBrancasRestantes > 1) {
-                // 4. Se não foi mate, passa o turno para as Pretas
-                ResultadoBusca resPretas = buscaRecursiva(proximoBoard, jogadasBrancasRestantes, false, sequenciaAtual);
-
-                if (resPretas.achouMate) {
-                    // Se a chamada recursiva (Pretas) retornou 'true',
-                    // significa que as Pretas não conseguiram escapar.
-                    return { true, resPretas.sequencia };
+            bool cicloDetectado = false;
+            for (const auto& s : historico) {
+                if (s == idEstado) {
+                    cicloDetectado = true;
+                    break;
                 }
             }
+            if (cicloDetectado) continue;
 
-            // 5. Se chegamos aqui, este 'mov' não levou a um mate forçado.
-            // Desfaz o movimento (backtracking) e tenta o próximo.
-            sequenciaAtual.pop_back();
+            // Adiciona ao histórico
+            historico.push_back(idEstado);
+
+            // 1. Verifica MATE Imediato
+            if (proximoBoard.eChequeMate(Cor::PRETA)) {
+                // Achamos! a sequencia é esse movimento
+                return { true, { mov } };
+            }
+
+            // Recursão
+            if (jogadasBrancasRestantes > 1) {
+                // Chama recursão para as Pretas
+                ResultadoBusca resPretas = buscaRecursiva(proximoBoard, jogadasBrancasRestantes, false, sequenciaAtual, historico);
+
+                if (resPretas.achouMate) {
+                    // SUCESSO! peças pretas não escapam
+                    // Monta a sequência completa:  Movimento + O Resto da Sequência
+                    std::vector<Movimento> sequenciaCompleta;
+                    sequenciaCompleta.push_back(mov);
+                    // Anexa o vetor retornado pelas pretas no final 
+                    sequenciaCompleta.insert(sequenciaCompleta.end(), resPretas.sequencia.begin(), resPretas.sequencia.end());
+
+                    return { true, sequenciaCompleta };
+                }
+            }
+            // remove histórico para não atrapalhar
+            historico.pop_back();
         }
-
-        // Se testamos todos os movimentos Brancos e NENHUM forçou mate, falhamos.
-        return { false, {} };
+        return { false, {} }; // Nenhum movimento funcionou
     }
-    // === TURNO DAS PRETAS (Minimizador) ===
+
+    // minimizador: TURNO DAS PRETAS
     else {
-        // Pega todos os movimentos legais das Pretas (só o Rei)
         std::vector<Movimento> movimentos = board.getMovimentosLegaisParaCor(Cor::PRETA);
 
-        // Verifica afogamento (se não está em cheque e não tem movimentos)
+        // Afogamento?
         if (movimentos.empty() && !board.estaEmCheque(Cor::PRETA)) {
-            // É afogamento, não mate. As brancas falharam.
-            return { false, {} };
+            return { false, {} }; // afogamento
         }
 
-        // Se o Rei não tem movimentos E está em cheque, já seria pego no
-        // `eChequeMate` no turno anterior das Brancas.
+        ResultadoBusca melhorSequencia = { false, {} };
 
         for (const auto& mov : movimentos) {
-            // 1. "Joga" o movimento de fuga do Rei
             Tabuleiro proximoBoard = board.fazerMovimento(mov);
-            sequenciaAtual.push_back(mov);
 
-            // 2. Passa o turno de volta para as Brancas (com 1 jogada a menos)
-            ResultadoBusca resBrancas = buscaRecursiva(proximoBoard, jogadasBrancasRestantes - 1, true, sequenciaAtual);
+            // Detecção de ciclos 
+            std::string idEstado = proximoBoard.getEstadoString();
+            bool cicloDetectado = false;
 
-            // 3. Desfaz o movimento (backtracking)
-            sequenciaAtual.pop_back();
+            for (const auto& s : historico) {
+                if (s == idEstado) { cicloDetectado = true; break; }
+            }
+            if (cicloDetectado) {
+                // Se o Rei foge para uma posição repetida, conta como "fuga bem sucedida" (empate por repetição)
+                // Logo, as Brancas FALHARAM em dar mate forçado aqui.
+                return { false, {} };
+            }
+
+            historico.push_back(idEstado);
+
+            // Chama recursão para as Brancas
+            ResultadoBusca resBrancas = buscaRecursiva(proximoBoard, jogadasBrancasRestantes - 1, true, sequenciaAtual, historico);
 
             if (!resBrancas.achouMate) {
-                // Se as Brancas falharam em *qualquer* um dos ramos,
-                // significa que o Rei achou uma fuga.
-                // O Minimizador (Pretas) venceu esta linha.
+                // Se o Rei escapou aqui, então NÃO é mate forçado. Falhamos.
                 return { false, {} };
+            }
+
+            // Se chegamos aqui, este movimento do Rei levou à morte dele.
+            if (melhorSequencia.sequencia.empty()) {
+                std::vector<Movimento> seq;
+                seq.push_back(mov);
+                seq.insert(seq.end(), resBrancas.sequencia.begin(), resBrancas.sequencia.end());
+                melhorSequencia = { true, seq };
             }
         }
 
-        // Se o loop terminou, significa que TODOS os movimentos de fuga do Rei
-        // foram checados e TODOS eles levaram a um mate.
-        // O Rei está perdido. As Brancas (Maximizador) venceram.
-        return { true, {} };
+        // Se testamos todas as fugas e todas deram True (mate), retornamos a sequência salva
+        return melhorSequencia;
     }
 }

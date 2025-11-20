@@ -27,10 +27,10 @@ std::vector<Movimento> Bispo::getMovimentosPossiveis(const Tabuleiro& tabuleiro)
     std::vector<Movimento> movimentos;
 
     // Checa as 4 direções diagonais
-    checarDirecao(movimentos, tabuleiro, -1, -1); // Diag. Cima-Esq
-    checarDirecao(movimentos, tabuleiro, -1, 1);  // Diag. Cima-Dir
-    checarDirecao(movimentos, tabuleiro, 1, -1);  // Diag. Baixo-Esq
-    checarDirecao(movimentos, tabuleiro, 1, 1);   // Diag. Baixo-Dir
+    checarDirecao(movimentos, tabuleiro, -1, -1); // Diagonal Cima-Esq
+    checarDirecao(movimentos, tabuleiro, -1, 1);  // Diaognal. Cima-Dir
+    checarDirecao(movimentos, tabuleiro, 1, -1);  // Diagonal Baixo-Esq
+    checarDirecao(movimentos, tabuleiro, 1, 1);   // Diagonal Baixo-Dir
 
     return movimentos;
 }
